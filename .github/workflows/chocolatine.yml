@@ -1,0 +1,24 @@
+name: chocolatine
+MIRROR_URL: "git@github.com:dssurvolt/mirror_repo.git"
+EXECUTABLES: "a.out"
+
+  on:
+    push:
+      branch-ignore:
+        - 'ga-ignore*'
+    pull request:
+      branch-ignore:
+        - 'ga-ignore*'
+run-name: $check the coding-style
+on: [push, pull request]
+
+jobs:
+  check_coding_style:
+    runs-on: ubuntu-latest
+    steps:
+      - run: ghcr.io/epitech/coding-style-checker:latest
+    script:
+      - |
+        if [ ! -s "$file_path" ]; then
+        echo "The file 'color.txt' is empty."
+        fi
