@@ -6,9 +6,6 @@ on:
     push:
       branch-ignore:
         - 'ga-ignore*'
-    pull request:
-      branch-ignore:
-        - 'ga-ignore*'
 
 jobs:
   check_coding_style:
