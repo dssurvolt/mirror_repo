@@ -11,15 +11,8 @@ jobs:
   check_coding_style:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Docker
-        uses: docker/setup-docker@v2
-
       - name: Run coding style checker
-        run: |
-          docker run --rm -v $(pwd):/code ghcr.io/epitech/coding-style-checker:latest check.sh $(pwd) $(pwd)
+        image: ghcr.io/epitech/coding-style-checker:latest check.sh $(pwd) $(pwd)
 
       - name: Display coding style errors
         run: |
