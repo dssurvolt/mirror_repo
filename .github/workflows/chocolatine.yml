@@ -10,7 +10,7 @@ on:
 jobs:
   check_coding_style:
     runs-on: ubuntu-latest
-    image: ghcr.io/epitech/coding-style-checker:latest
+    container: ghcr.io/epitech/coding-style-checker:latest
     steps:
 
       - name: Checkout GH repository
