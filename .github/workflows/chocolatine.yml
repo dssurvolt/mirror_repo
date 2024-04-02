@@ -10,18 +10,28 @@ on:
 jobs:
   check_coding_style:
     runs-on: ubuntu-latest
+    container: ghcr.io/epitech/coding-style-checker:latest
     steps:
-      - name: Run coding style checker
-        image: ghcr.io/epitech/coding-style-checker:latest check.sh $(pwd) $(pwd)
 
-      - name: Display coding style errors
-        run: |
-          if [ -f coding-style-reports.log ]; then
-            cat coding-style-reports.log
-          fi
+      - name: Checkout GH repository
+        uses: actions/checkout@master
+        with:
+          repository: ''
 
-      - name: Fail the job if there are errors
+      - name: Run coding-style
+        run: check.sh . /tmp
+
+      - name: Create annotation for coding-style errors
         run: |
-          if [ -f coding-style-reports.log ]; then
+          input=/tmp/coding-style-reports.log
+          while IFS= read -r -a line; do
+            fields=($(printf "%s" "$line"|cut -d':' --output-delimiter=' ' -f1-))
+            echo "::error title=${fields[2]} coding style error,file=${fields[0]},line=${fields[1]}::${fields[3]}"
+          done < $input
+
+      - name: Report banana result
+        run: |
+          NB_ERROR=$(cat /tmp/coding-style-reports.log | wc -l)
+          if [ $NB_ERROR -gt 0 ]; then
             exit 1
           fi
