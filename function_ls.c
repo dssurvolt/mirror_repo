@@ -21,6 +21,7 @@ int directory_as_parameter(char *argv)
     struct dirent *entree;
     DIR *fd;
     char *c;
+
     fd = opendir(argv);
     if (fd == NULL)
         return 84;

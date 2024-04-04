@@ -37,6 +37,7 @@ jobs:
             exit 1
           fi
   check_program_compilation:
+    needs: check_coding_style
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker
     steps:
