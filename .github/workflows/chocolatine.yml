@@ -1,7 +1,7 @@
 name: chocolatine
 env:
   MIRROR_URL: "git@github.com:dssurvolt/mirror_repo.git"
-  EXECUTABLES: "a.out"
+  EXECUTABLES: "108trig"
 on:
     push:
       branch-ignore:
@@ -38,3 +38,22 @@ jobs:
           if [ $NB_ERROR -gt 0 ]; then
             exit 1
           fi
+  check_program_compilation:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: compilation
+        run: make
+        timeout-minutes: 2
+
+      - name: clean repo
+        run: make clean
+      - name: Files verification
+        run: |
+          IFS=',' read -ra executables <<< "${EXECUTABLES}"
+          for executable in "${executables[@]}"; do
+            if [[ ! -x "${executable}" ]]; then
+              echo "Error: Rakib, ${executable} d'ont exist, check correctly and try again🧐"
+              exit 84
+            fi
+          done
