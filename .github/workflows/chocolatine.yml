@@ -53,7 +53,7 @@ jobs:
           IFS=',' read -ra executables <<< "${EXECUTABLES}"
           for executable in "${executables[@]}"; do
             if [[ ! -x "${executable}" ]]; then
-              echo "Error: Rakib, ${executable} d'ont exist, check correctly and try again🧐"
+              echo "Error: Rakib, ${executable} d'ont exist, check correctly and try again"
               exit 84
             fi
           done
