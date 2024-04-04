@@ -38,6 +38,7 @@ jobs:
           fi
   check_program_compilation:
     runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker
     steps:
 
       - name: compilation
