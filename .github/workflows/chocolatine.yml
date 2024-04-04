@@ -1,7 +1,7 @@
 name: chocolatine
 env:
   MIRROR_URL: "git@github.com:dssurvolt/mirror_repo.git"
-  EXECUTABLES: "myls"
+  EXECUTABLES: "my_ls"
 on:
     push:
       branch-ignore:
