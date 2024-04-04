@@ -18,13 +18,11 @@ jobs:
 
       - name: Checkout GH repository
         uses: actions/checkout@master
-        with:
-          repository: ''
 
       - name: Run coding-style
         run: check.sh . /tmp
 
-      - name: Create annotation for coding-style errors
+      - name: print coding-style errors
         run: |
           input=/tmp/coding-style-reports.log
           while IFS= read -r -a line; do
@@ -32,7 +30,7 @@ jobs:
             echo "::error title=${fields[2]} coding style error,file=${fields[0]},line=${fields[1]}::${fields[3]}"
           done < $input
 
-      - name: Report banana result
+      - name: Report the result
         run: |
           NB_ERROR=$(cat /tmp/coding-style-reports.log | wc -l)
           if [ $NB_ERROR -gt 0 ]; then
