@@ -1,25 +1,28 @@
 ##
 ## EPITECH PROJECT, 2023
-## Makefile
+## makefile
 ## File description:
-## a makefile to compile
+## my own makefile
 ##
-
-NAME = libhashtable.a
-
-SRCS =	$(wildcard src/*.c)
-
+CC = gcc
+NAME = my_ls
+SRCS =	my_printf1.c	\
+	my_printf2.c	\
+	my_printf3.c	\
+	my_printf4.c	\
+	my_printf5.c	\
+	my_printf0.c	\
+	function_ls.c	\
+	function_ls2.c	\
+	function_ls3.c  \
+	my_str_to_word_array.c
 OBJS = $(SRCS:.c=.o)
+all:$(NAME)
 
-all: $(NAME)
-
-$(NAME):$(OBJS)
-	ar rc $(NAME) $(OBJS)
-
-clean:
-	rm -r -f src/*.o
-
+$(NAME) : $(OBJS)
+	$(CC) $(SRCS) -o $(NAME)
+clean :
+	rm -rf *.o
 fclean: clean
-	rm -rf src/*.a
-
+	rm -rf my_ls
 re: fclean all
