@@ -17,9 +17,7 @@ SRCS =	my_printf1.c	\
 	function_ls3.c  \
 	my_str_to_word_array.c
 OBJS = $(SRCS:.c=.o)
-all:$(NAME)
-
-$(NAME) : $(OBJS)
+all:$(OBJS)
 	$(CC) $(SRCS) -o $(NAME)
 clean :
 	rm -rf *.o
