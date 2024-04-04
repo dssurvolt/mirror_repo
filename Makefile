@@ -1,41 +1,25 @@
 ##
 ## EPITECH PROJECT, 2023
-## epitech
+## Makefile
 ## File description:
-## desc
+## a makefile to compile
 ##
 
-LIBNAME	=	108trigo
+NAME = libhashtable.a
 
-SRC	=	trigo1.c	\
+SRCS =	$(wildcard src/*.c)
 
-OBJ	=	$(SRC:.c=.o)
+OBJS = $(SRCS:.c=.o)
 
-autre 	= 	*~	\
-		*.log	\
-		a.out	\
-		*.gcov	\
-		*.gcno	\
-		*.gcda
+all: $(NAME)
 
-all	: 	$(LIBNAME)
-
-$(LIBNAME):	$(OBJ)
-		gcc $(SRC) trigo.c -o $(LIBNAME) -g3 -lm
+$(NAME):$(OBJS)
+	ar rc $(NAME) $(OBJS)
 
 clean:
-		rm -f $(OBJ)
-fclean:		clean
-		rm -f $(LIBNAME) $(autre) 	unit_tests
+	rm -r -f src/*.o
 
-re:		fclean all
+fclean: clean
+	rm -rf src/*.a
 
-unit_tests :	fclean $(LIBNAME)
-	     	gcc $(SRC) tests/test/*.c -o unit_tests \
-			-coverage -lcriterion -lgcov
-
-tests_run :	unit_tests
-		./unit_tests
-		gcovr
-		gcovr --exclude tests/test
-		gcovr --exclude tests/test/ --branches
+re: fclean all

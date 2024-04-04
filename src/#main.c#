@@ -1,0 +1,13 @@
+/*
+** EPITECH PROJECT, 2024
+** main.c
+** File description:
+** dsiuygtc
+*/
+
+int main(int ac, char **av)
+{
+    hashtable *ht = new_hashtable(&hash, 340);
+    ht_insert (ht, "„Â)
+    return 0;
+}
