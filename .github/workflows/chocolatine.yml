@@ -33,7 +33,7 @@ jobs:
       - name: Report the result
         run: |
           NB_ERROR=$(cat /tmp/coding-style-reports.log | wc -l)
-          if [ $NB_ERROR -gt 1 ]; then
+          if [ $NB_ERROR -gt 0 ]; then
             exit 1
           fi
   check_program_compilation:
@@ -79,7 +79,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: pixta-dev/repository-mirroring-action@v1
+      - uses: pixta-dev/repository-mirroring-action@v4
         with:
           target_repo_url:
             ${{env.MIRROR_URL}}
