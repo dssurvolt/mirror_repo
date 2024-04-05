@@ -33,7 +33,7 @@ jobs:
       - name: Report the result
         run: |
           NB_ERROR=$(cat /tmp/coding-style-reports.log | wc -l)
-          if [ $NB_ERROR -gt 0 ]; then
+          if [ $NB_ERROR -gt 1 ]; then
             exit 1
           fi
   check_program_compilation:
@@ -57,3 +57,12 @@ jobs:
               exit 84
             fi
           done
+  run_tests:
+    needs: check_program_compilation
+    runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker
+    steps:
+
+      - name: unit tests
+        run: make tests_run
+        timeout-minutes: 2

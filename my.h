@@ -36,4 +36,5 @@ char **my_str_to_word_array(char const *str);
 int erreur(char *argv);
 void dir_file(char *argv);
 char *my_strcat(char *dest, char const *src, const char *str);
+int count(char *p);
 #endif // TRIPLE_H_INCLUDED
