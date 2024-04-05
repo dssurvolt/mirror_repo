@@ -37,26 +37,26 @@ jobs:
             exit 1
           fi
   check_program_compilation:
-  needs: check_coding_style
-  runs-on: ubuntu-latest
-  container: epitechcontent/epitest-docker
-  steps:
-    - name: Compilation
-      run: make
-      timeout-minutes: 2
+    needs: check_coding_style
+    runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker
+    steps:
 
-    - name: Clean repository
-      run: make clean
+      - name: compilation
+        run: make
+        timeout-minutes: 2
 
-    - name: Files verification
-      run: |
-        IFS=',' read -ra executables <<< "${EXECUTABLES}"
-        for executable in "${executables[@]}"; do
-          if [ ! -x "${executable}" ]; then
-            echo "Error: Rakib, ${executable} doesn't exist, check correctly and try again"
-            exit 84
-          fi
-        done
+      - name: clean repo
+        run: make clean
+      - name: Files verification
+        run: |
+          IFS=',' read -ra executables <<< "${EXECUTABLES}"
+          for executable in "${executables[@]}"; do
+            if [[ ! -x "${executable}" ]]; then
+              echo "Error: Rakib, ${executable} d'ont exist, check correctly and try again"
+              exit 84
+            fi
+          done
   run_tests:
     needs: check_program_compilation
     runs-on: ubuntu-latest
