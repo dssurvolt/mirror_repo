@@ -17,7 +17,7 @@ jobs:
     steps:
 
       - name: action usedrt
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
 
       - name: Run coding-style
         run: check.sh . /tmp
@@ -42,6 +42,8 @@ jobs:
     container: epitechcontent/epitest-docker
     steps:
 
+      - name: action usedrt
+        uses: actions/checkout@v4
       - name: compilation
         run: make
         timeout-minutes: 2
