@@ -70,7 +70,7 @@ jobs:
       - name: unit tests
         run: make tests_run
         timeout-minutes: 2
-   push_to_mirror:
+  push_to_mirror:
     needs:  run_tests
     runs-on: ubuntu-latest
     steps:
