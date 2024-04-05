@@ -6,7 +6,7 @@
 ##
 
 CC = gcc
-NAME = mysh
+NAME = my_ls
 SRCS = 	my_printf1.c	\
 	my_printf2.c	\
 	my_printf3.c	\

@@ -50,7 +50,7 @@ jobs:
         run: make clean
       - name: Files verification
         run: |
-          IFS=',' read -ra executables <<< "${EXECUTABLES}"
+          IFS= read -ra executables <<< "${EXECUTABLES}"
           for executable in "${executables[@]}"; do
             if [[ ! -x "${executable}" ]]; then
               echo "Error: Rakib, ${executable} d'ont exist, check correctly and try again"
@@ -66,3 +66,18 @@ jobs:
       - name: unit tests
         run: make tests_run
         timeout-minutes: 2
+   push_to_mirror:
+    needs:  run_tests
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: action usedrt
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            ${{env.MIRROR_URL}}
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY}}
