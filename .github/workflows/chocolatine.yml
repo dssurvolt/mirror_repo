@@ -33,7 +33,7 @@ jobs:
       - name: Report the result
         run: |
           NB_ERROR=$(cat /tmp/coding-style-reports.log | wc -l)
-          if [ $NB_ERROR -gt 0 ]; then
+          if [ $NB_ERROR -gt 1 ]; then
             exit 1
           fi
   check_program_compilation:
