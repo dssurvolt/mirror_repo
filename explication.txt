@@ -1,0 +1,167 @@
+Nous allons décortiquer en détail le fonctionnement de chacun de ces parseurs, qui font partie d'un parser JSON écrit en Haskell à l'aide de combinators.
+
+---
+
+## 1. Le parseur d'array : `parseArray`
+
+```haskell
+parseArray :: Parser JsonValue
+parseArray = JsonArray <$> ( parseChar '[' 
+                           *> parseWhitespace 
+                           *> sepBy parseJsonValue (parseChar ',') 
+                           <* parseWhitespace 
+                           <* parseChar ']' )
+```
+
+**But :**  
+Parser une valeur JSON de type tableau (array) et la renvoyer sous la forme `JsonArray [JsonValue]`.
+
+**Décomposition :**
+
+- **`parseChar '['`**  
+  Ce parseur attend le caractère ouvrant `'['` qui débute un tableau JSON.
+
+- **`*> parseWhitespace`**  
+  L'opérateur `*>` exécute le parseur de gauche (`parseChar '['`) puis celui de droite (`parseWhitespace`), en ignorant le résultat de gauche. Ici, après le `'['`, on consomme les espaces blancs.
+
+- **`sepBy parseJsonValue (parseChar ',')`**  
+  Ce combinator (que nous détaillerons ci-dessous) parse une **liste** d'éléments en séparant chaque valeur par le caractère `','`.  
+  - Concrètement, il va essayer de parser zéro ou plusieurs valeurs JSON (`parseJsonValue`), séparées par une virgule.
+
+- **`<* parseWhitespace <* parseChar ']'`**  
+  Les opérateurs `<*` indiquent que l'on va exécuter successivement ces parseurs **après** avoir récupéré les éléments de la liste, mais leurs résultats sont ignorés.  
+  - On consomme ici d'abord les espaces blancs éventuels (avec `parseWhitespace`), puis on attend le caractère fermant `']'`.
+
+- **`JsonArray <$> (...)`**  
+  Le résultat du groupe entre parenthèses (c'est-à-dire la liste d'éléments parsés) est injecté dans le constructeur `JsonArray` grâce à l'opérateur `<$>` (équivalent à `fmap`).
+
+Ainsi, `parseArray` renvoie un `JsonValue` sous la forme `JsonArray xs`, où `xs` est la liste des valeurs parsées entre crochets.
+
+---
+
+## 2. Le parseur d'objet : `parseObject`
+
+```haskell
+parseObject :: Parser JsonValue
+parseObject = JsonObject <$> ( parseChar '{' 
+                             *> parseWhitespace 
+                             *> sepBy parseKeyValue (parseChar ',') 
+                             <* parseWhitespace 
+                             <* parseChar '}' )
+```
+
+**But :**  
+Parser une valeur JSON de type objet (object) et la retourner sous la forme `JsonObject [(String, JsonValue)]`.
+
+**Décomposition :**
+
+- **`parseChar '{'`**  
+  Attend le caractère ouvrant `'{'` qui commence un objet JSON.
+
+- **`*> parseWhitespace`**  
+  On consomme les espaces blancs après l'ouverture.
+
+- **`sepBy parseKeyValue (parseChar ',')`**  
+  Ici, on parse une liste d'associations clé/valeur séparées par des virgules grâce au parseur `parseKeyValue`.  
+  - Chaque élément correspondant à une paire `(clé, valeur)` sera parsé.
+
+- **`<* parseWhitespace <* parseChar '}'`**  
+  On consomme d'abord (éventuellement) des espaces blancs, puis on attend le caractère fermant `'}'`.
+
+- **`JsonObject <$> (...)`**  
+  Le résultat (une liste de paires clé/valeur) est injecté dans le constructeur `JsonObject`.
+
+---
+
+## 3. Le parseur d'une paire clé/valeur
+
+### a) `parseKeyHelper`
+
+```haskell
+parseKeyHelper :: JsonValue -> Parser (String, JsonValue)
+parseKeyHelper (JsonString k) = do
+    parseWhitespace
+    _ <- parseChar ':'
+    parseWhitespace
+    val <- parseJsonValue
+    pure (k, val)
+parseKeyHelper _ = empty
+```
+
+**But :**  
+Transformer une valeur JSON représentant une chaîne (le nom de la clé) en une paire (clé, valeur) en attendant qu'après la chaîne, il y ait un deux-points puis la valeur correspondante.
+
+**Décomposition :**
+
+- **Cas positif (`JsonString k`) :**  
+  - On reçoit un `JsonString k` (la clé) et on exécute ensuite une séquence d'actions :
+    1. **`parseWhitespace`** consomme les espaces avant le séparateur.
+    2. **`_ <- parseChar ':'`** lit le caractère `':'` qui sépare la clé de la valeur.
+    3. **`parseWhitespace`** consomme les espaces après le `':'`.
+    4. **`val <- parseJsonValue`** parse la valeur associée.
+    5. Enfin, on retourne la paire `(k, val)` avec `pure`.
+  
+- **Cas négatif :**  
+  Si la valeur reçue n'est pas une chaîne (donc pas une clé valide), alors `parseKeyHelper _` renvoie `empty` (un échec du parseur).
+
+### b) `parseKeyValue`
+
+```haskell
+parseKeyValue :: Parser (String, JsonValue)
+parseKeyValue = parseWhitespace *> parseJsonString >>= parseKeyHelper
+```
+
+**But :**  
+Parser une paire clé/valeur dans un objet JSON.
+
+**Décomposition :**
+
+- **`parseWhitespace *> parseJsonString`**  
+  Après avoir consommé d'éventuels espaces blancs, on parse une chaîne JSON grâce à `parseJsonString`.  
+  On s'assure ainsi que l'objet commence bien par une clé valide.
+
+- **`>>= parseKeyHelper`**  
+  On passe la chaîne JSON obtenue (sous forme de `JsonValue`, probablement un `JsonString`) à `parseKeyHelper` pour consommer le séparateur `':'`, les espaces et parser la valeur associée.  
+  Le résultat sera une paire `(String, JsonValue)`.
+
+---
+
+## 4. Le combinator `sepBy`
+
+```haskell
+sepBy :: Parser a -> Parser sep -> Parser [a]
+sepBy p sep = ((:) <$> p <*> many (sep *> p)) <|> pure []
+```
+
+**But :**  
+Parser zéro ou plusieurs occurrences d'un élément `p`, séparées par un séparateur `sep`.
+
+**Décomposition :**
+
+- **Cas non vide :**  
+  `(:) <$> p <*> many (sep *> p)` essaie de parser un premier élément avec `p` puis zéro ou plusieurs occurrences supplémentaires sous la forme d'un séparateur `sep` suivi d'un autre `p`.  
+  - L'opérateur `<$>` applique le constructeur `(:)` au premier élément.
+  - `many (sep *> p)` produit une liste d'éléments additionnels.  
+  Le résultat est donc la liste complète d'éléments parsés.
+
+- **Cas vide :**  
+  `<|> pure []` indique que si la première alternative échoue (c'est-à-dire qu'il n'y a aucun élément à parser), alors le parseur renvoie `[]` (la liste vide).
+
+**Utilisation dans `parseArray` et `parseObject` :**  
+- Pour `parseArray`, `sepBy parseJsonValue (parseChar ',')` rassemble les valeurs de l'array, séparées par des virgules.  
+- Pour `parseObject`, `sepBy parseKeyValue (parseChar ',')` rassemble les paires clé/valeur.
+
+---
+
+## Conclusion
+
+Ces parseurs construisent un petit langage pour l'analyse de structures JSON :
+
+- **`parseArray`** identifie un tableau en entourant d'un `'['` et d'un `']'`, en parsant les valeurs à l'intérieur via `sepBy`.
+- **`parseObject`** fonctionne de manière similaire pour les objets, utilisant `parseKeyValue` pour chaque paire clé/valeur.
+- **`parseKeyHelper`** et **`parseKeyValue`** gèrent la spécificité de la syntaxe JSON où les clés doivent être des chaînes suivies d'un deux-points et d'une valeur.
+- **`sepBy`** simplifie le parsing de listes d'éléments séparés par un séparateur commun (comme la virgule).
+
+Chaque partie du parseur consomme également les espaces blancs (à l'aide de `parseWhitespace`) aux endroits appropriés pour respecter la syntaxe JSON et assurer que l'input corresponde exactement aux attentes.
+
+Ensemble, ces fonctions forment la base d'un parser JSON modulaire, où chaque morceau se charge d'une partie spécifique de la grammaire JSON. Si tu as d'autres questions sur l'implémentation ou des détails sur le fonctionnement de ces combinators, n'hésite pas !

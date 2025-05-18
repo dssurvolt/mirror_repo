@@ -1,0 +1,173 @@
+Voici comment tester efficacement la partie **"Working with a database"** du projet, étape par étape :
+
+---
+
+### **1. Prérequis : Installation de MySQL**
+- **Sur Linux (Ubuntu)** :
+  ```bash
+  sudo apt update
+  sudo apt install mysql-server
+  sudo mysql_secure_installation  # Configurer le mot de passe root
+  ```
+
+- **Sur Windows/Mac** :  
+  Téléchargez [MySQL Installer](https://dev.mysql.com/downloads/installer/) et suivez les étapes.
+
+---
+
+### **2. Configuration de la Base de Données**
+#### a. Se connecter à MySQL :
+```bash
+mysql -u root -p  # Entrez le mot de passe root
+```
+
+#### b. Créer une base de données et un utilisateur :
+```sql
+CREATE DATABASE epytodo;
+CREATE USER 'epytodo_user'@'localhost' IDENTIFIED BY 'password123';
+GRANT ALL PRIVILEGES ON epytodo.* TO 'epytodo_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+#### c. Créer une table exemple :
+```sql
+USE epytodo;
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL
+);
+```
+
+---
+
+### **3. Tester la Connexion depuis Node.js**
+#### a. Installer `mysql2` :
+```bash
+npm install mysql2
+```
+
+#### b. Configurer `db.js` :
+```javascript
+// db.js
+const mysql = require('mysql2/promise');
+require('dotenv').config();
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+});
+
+module.exports = pool;
+```
+
+#### c. Vérifier la connexion dans `index.js` :
+```javascript
+const pool = require('./db');
+
+// Test de connexion au démarrage
+async function testConnection() {
+  try {
+    const [rows] = await pool.query('SELECT 1 + 1 AS result');
+    console.log('✅ Connexion DB réussie. Résultat :', rows[0].result);
+  } catch (err) {
+    console.error('❌ Erreur de connexion DB :', err);
+  }
+}
+
+testConnection();
+```
+
+---
+
+### **4. Tester les Routes CRUD**
+#### a. Route **GET** pour récupérer des utilisateurs :
+```javascript
+// Dans index.js
+app.get('/users', async (req, res) => {
+  try {
+    const [users] = await pool.query('SELECT * FROM users');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+```
+
+**Test avec Curl** :
+```bash
+curl http://localhost:3000/users
+# Sortie attendue : Liste des utilisateurs (vide au départ)
+```
+
+---
+
+#### b. Route **POST** pour ajouter un utilisateur :
+```javascript
+app.post('/users', async (req, res) => {
+  const { name, email } = req.body;
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Nom et email requis !' });
+  }
+
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO users (name, email) VALUES (?, ?)',
+      [name, email]
+    );
+    res.status(201).json({ id: result.insertId, name, email });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+```
+
+**Test avec Curl** :
+```bash
+curl -X POST -H "Content-Type: application/json" \
+-d '{"name":"Alice", "email":"alice@example.com"}' \
+http://localhost:3000/users
+# Sortie attendue : {"id":1,"name":"Alice","email":"alice@example.com"}
+```
+
+---
+
+### **5. Vérification Directe dans MySQL**
+Connectez-vous à MySQL et vérifiez les données :
+```bash
+mysql -u epytodo_user -p
+USE epytodo;
+SELECT * FROM users;  # Doit afficher l'utilisateur créé
+```
+
+---
+
+### **6. Gestion des Erreurs Courantes**
+| Problème                          | Solution                          |
+|-----------------------------------|-----------------------------------|
+| **`ER_ACCESS_DENIED_ERROR`**      | Vérifiez le user/mot de passe dans `.env` |
+| **`ER_NO_SUCH_TABLE`**            | Exécutez le script SQL de création de table |
+| **Données non insérées**          | Vérifiez les clés `name` et `email` dans le corps de la requête POST |
+
+---
+
+### **7. Test Avancé avec Postman**
+1. Créez une collection **Epytodo**.
+2. Ajoutez des requêtes :
+   - `GET /users`
+   - `POST /users` (avec body JSON)
+   - `GET /users/:id`
+3. Exécutez les requêtes et vérifiez les réponses.
+
+---
+
+### **Résultat Final Attendu**
+- La base de données `epytodo` contient la table `users`.
+- Les routes `/users` renvoient/ajoutent des données correctement.
+- Les erreurs sont gérées proprement (ex: champs manquants en POST).
+
+Avec ces étapes, vous pourrez expliquer clairement aux étudiants comment interagir avec une base de données dans un projet Node.js/Express. 🚀

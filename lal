@@ -1,0 +1,39 @@
+Bien sûr ! Le **raytracing** et le **raycasting** sont deux techniques utilisées en informatique graphique et en développement de jeux vidéo pour simuler le comportement de la lumière et des objets dans un environnement tridimensionnel. Voici une explication détaillée des deux concepts ainsi que leurs différences :
+
+### **Raytracing (Tracé de rayons)**
+Le raytracing est une technique avancée de rendu qui simule précisément la manière dont la lumière interagit avec les objets d'une scène. Il fonctionne en traçant des rayons de lumière depuis la caméra (ou les sources lumineuses) et en calculant comment ces rayons se réfléchissent, se réfractent et interagissent avec les matériaux. Grâce à cette approche, le raytracing permet de produire des images d'un réalisme impressionnant, avec des ombres, des reflets et des effets de transparence très précis.
+
+#### 🔹 Avantages du raytracing :
+- Réalisme extrême avec des ombres douces et naturelles.
+- Reflets précis sur les surfaces brillantes et transparentes.
+- Simulation avancée des interactions entre la lumière et les matériaux.
+
+#### 🔹 Inconvénients :
+- Consommation élevée de ressources **(nécessite un GPU puissant)**
+- Temps de calcul souvent long pour les rendus en temps réel.
+
+### **Raycasting (Projection de rayons)**
+Le raycasting est une technique plus simple utilisée principalement pour détecter les objets ou les surfaces dans une scène. Contrairement au raytracing, qui calcule les interactions de la lumière, le raycasting projette des rayons depuis un point donné (comme la caméra d’un jeu vidéo) et détecte la première surface rencontrée. Il est souvent utilisé dans la détection des collisions, la visibilité des objets, ou encore les calculs de trajectoire en intelligence artificielle.
+
+#### 🔹 Avantages du raycasting :
+- Calcul rapide et efficace **(moins gourmand en ressources)**
+- Idéal pour les jeux vidéo et applications en temps réel.
+- Utile pour détecter les obstacles et les interactions.
+
+#### 🔹 Inconvénients :
+- Ne simule pas la lumière ou les reflets.
+- Moins réaliste que le raytracing.
+
+### **Différence entre raytracing et raycasting**
+| Technique     | Objectif principal | Réalisme | Consommation de ressources |
+|--------------|------------------|----------|---------------------------|
+| **Raytracing** | Simulation avancée de la lumière | Très réaliste | Élevée (nécessite un GPU puissant) |
+| **Raycasting** | Détection d’objets et de collisions | Moins réaliste | Faible (calcul rapide) |
+
+En résumé :
+- **Le raytracing** est utilisé pour rendre des images extrêmement réalistes avec gestion des reflets et des ombres.
+- **Le raycasting** est utilisé pour détecter des objets et gérer les interactions dans les jeux et simulations.
+
+Si tu veux voir le raytracing en action, des jeux modernes comme *Cyberpunk 2077* ou *Minecraft RTX* utilisent cette technologie pour des graphismes époustouflants !  
+
+Tu veux approfondir un aspect en particulier ? 🚀
