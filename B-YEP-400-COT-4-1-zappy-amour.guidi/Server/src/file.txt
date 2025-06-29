@@ -1,0 +1,106 @@
+Pour la fonction look_around(), l'idée générale est que le trantorian regarde autour de lui sur la grille et renvoie ce qu'il voit. Ce comportement doit dépendre de son orientation actuelle. Tu veux donc capturer les éléments de la grille dans toutes les directions (nord, sud, est, ouest).
+🔍 Ce que tu dois faire :
+
+    Récupérer la direction de la vue du trantorian : En fonction de son orientation actuelle (NORTH, EAST, SOUTH, WEST), tu regardes dans les directions correspondantes.
+
+    Afficher ce qu'il voit autour de lui : Tu devras peut-être créer une fonction qui traverse les cases autour de lui et récupère les objets ou trantorians présents dans les cases voisines.
+
+    Envoyer le message à l'IA : Une fois que le trantorian a "regardé", il faut renvoyer une réponse au client avec ce qu'il a vu.
+
+🚀 Comment implémenter ça ?
+
+Supposons que la carte soit une grille avec des coordonnées (x, y) et que chaque case de la carte puisse contenir des objets (ex : linemate, deraumere, etc.). Pour l'instant, on suppose qu'on peut "voir" un nombre limité de cases autour de lui, disons 7 (comme dans l'exemple que tu as donné : Look 7/f [tile1, tile2, ...]).
+Étapes de l'implémentation :
+
+    Déterminer les cases à examiner :
+
+        Il va falloir prendre en compte une "zone" autour du trantorian, qui dépend de son orientation.
+
+        Selon la direction de l'orientation, tu dois regarder en avant, sur les côtés, et derrière lui (si c'est un "regard à 360°").
+
+    Retourner les résultats :
+
+        Une fois les cases examinées, tu renverras une liste (ou tableau) des objets/trantorians vus dans chaque case.
+
+🧑‍💻 Implémentation de la fonction look_around :
+
+void look_around(servercontrol_t *server, trantoriant_t *trantorian) {
+    // Ce tableau contiendra les résultats de ce qu'il voit
+    char *tiles[7];  // Taille de 7 pour les cases autour de lui (selon l'exemple que tu as donné)
+
+    int x = trantorian->position.x;
+    int y = trantorian->position.y;
+
+    // On commence à remplir les cases autour de lui
+    for (int i = 0; i < 7; i++) {
+        tiles[i] = malloc(256 * sizeof(char));  // Allouer un espace pour chaque case
+        memset(tiles[i], 0, 256);  // Initialisation
+
+        // Exemple de code pour récupérer les objets autour du trantorian
+        // selon son orientation (simplifié ici).
+        // A COMPLETER : récupérer les objets selon la carte et son orientation.
+        
+        // Par exemple, si le trantorian regarde vers le nord:
+        if (trantorian->orientation == NORTH) {
+            // Regarder à "nord" en avançant dans la direction -1 pour y
+            if (i == 0) {
+                snprintf(tiles[i], 256, "tile(%d, %d): Object1", x, y - 1);
+            }
+            // Tu pourras remplir les autres cases (droite, gauche, etc.)
+        }
+        // Similar pour les autres orientations (EAST, SOUTH, WEST)
+    }
+
+    // Retourner un message à l'IA avec la vue.
+    // Par exemple, pour renvoyer la vue à l'IA sous forme d'une chaîne:
+    char message[1024] = "Look 7/f [";
+    for (int i = 0; i < 7; i++) {
+        if (i != 0) {
+            strcat(message, ", ");
+        }
+        strcat(message, tiles[i]);
+    }
+    strcat(message, "]");
+
+    // Envoie du message à l'IA
+    dprintf(trantorian->id, "%s\n", message);
+
+    // Libérer la mémoire des tiles allouées
+    for (int i = 0; i < 7; i++) {
+        free(tiles[i]);
+    }
+}
+
+🧑‍💻 Explication :
+
+    Préparation des tiles :
+
+        On alloue de la mémoire pour chaque case autour du trantorian. Ici, j'ai utilisé un tableau de char * pour stocker la description des cases.
+
+    Récupération des objets autour du trantorian :
+
+        L'exemple simplifié montre comment récupérer les objets d'une case autour du trantorian. Selon l'orientation (NORTH, EAST, SOUTH, WEST), il faudra ajuster la manière de calculer les coordonnées.
+
+    Retour du message :
+
+        Le message final renvoie une liste des objets/trantorians vus par le trantorian, formatée selon la spécification (Look 7/f [tile1, tile2, ...]).
+
+    Libération de la mémoire :
+
+        Enfin, on libère la mémoire allouée pour les tiles.
+
+🔍 Remarques :
+
+    Récupération des objets :
+
+        Il faut maintenant mettre à jour le code pour réellement récupérer les objets sur la carte. Dans l'exemple, les objets sont simplement des chaînes de caractères pour simplifier, mais tu devras récupérer les objets réels dans la carte du serveur.
+
+    Gestion des cases :
+
+        Assure-toi de bien gérer les indices sur la carte pour ne pas sortir des limites. Si le trantorian regarde vers le nord, tu dois vérifier que y - 1 est dans les limites de la carte.
+
+🚀 Conclusion :
+
+La fonction look_around permet de voir ce qui se trouve autour du trantorian en fonction de son orientation. Tu peux maintenant l'utiliser pour renvoyer la vue au client sous la forme attendue. Si tu veux avancer sur un autre comportement ou une autre commande, fais-le moi savoir !
+
+

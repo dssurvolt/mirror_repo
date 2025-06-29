@@ -1,0 +1,29 @@
+name: Check all directories of all base branches
+
+on:
+  workflow_run:
+    workflows: ["Auto Merge on Main"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  verify-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Verify required folders exist
+        run: |
+          dirs=("Ai" "Gui" "Server" "docs" "tests")
+
+          for dir in "${dirs[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "::error::Missing required directory: $dir"
+              exit 1
+            fi
+          done
+
+      - name: Structure validation passed
+        run: echo "All required directories are present."
